@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML5 網頁設計期中考刷題與錯題重測系統</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col antialiased">
+
+    <!-- Header / Navbar -->
+    <header class="bg-indigo-600 text-white shadow-md sticky top-0 z-30">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="switchView('home')">
+                <div class="p-2 bg-indigo-500 rounded-lg text-xl">
+                    <i class="fa-solid fa-code"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg sm:text-xl leading-tight">HTML5 網頁設計期中考</h1>
+                    <p class="text-xs text-indigo-200">題庫練習與錯題重測系統 (共171題)</p>
+                </div>
+            </div>
+            
+            <nav class="flex items-center space-x-1 sm:space-x-2 text-sm font-medium">
+                <button onclick="switchView('home')" id="nav-home" class="px-3 py-2 rounded-md hover:bg-indigo-500 transition-colors flex items-center gap-1.5">
+                    <i class="fa-solid fa-house"></i> <span class="hidden sm:inline">主頁</span>
+                </button>
+                <button onclick="switchView('browse')" id="nav-browse" class="px-3 py-2 rounded-md hover:bg-indigo-500 transition-colors flex items-center gap-1.5">
+                    <i class="fa-solid fa-book-open"></i> <span class="hidden sm:inline">瀏覽題庫</span>
+                </button>
+                <button onclick="switchView('bookmarks')" id="nav-bookmarks" class="px-3 py-2 rounded-md hover:bg-indigo-500 transition-colors flex items-center gap-1.5 relative">
+                    <i class="fa-solid fa-bookmark"></i> <span class="hidden sm:inline">我的收藏</span>
+                    <span id="bookmark-badge" class="bg-amber-400 text-slate-900 text-xs px-1.5 py-0.5 rounded-full font-bold hidden">0</span>
+                </button>
+                <button onclick="switchView('stats')" id="nav-stats" class="px-3 py-2 rounded-md hover:bg-indigo-500 transition-colors flex items-center gap-1.5">
+                    <i class="fa-solid fa-chart-pie"></i> <span class="hidden sm:inline">統計記錄</span>
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+        <!-- 1. HOME / DASHBOARD VIEW -->
+        <section id="view-home" class="space-y-6">
+            <!-- Banner / Progress Summary -->
+            <div class="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-2xl p-6 text-white shadow-lg">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div>
+                        <h2 class="text-2xl sm:text-3xl font-extrabold mb-1">準備好迎接 HTML5 期中考了嗎？</h2>
+                        <p class="text-indigo-100 text-sm sm:text-base max-w-2xl">
+                            系統包含完整的 171 題選擇題，具備交錯隨機排序、即時解答說明與累積錯題重測機制，幫助您高分通關！
+                        </p>
+                    </div>
+                    <div class="bg-white/10 backdrop-blur-md rounded-xl p-4 flex items-center gap-4 self-stretch md:self-auto justify-around">
+                        <div class="text-center">
+                            <div class="text-2xl font-black" id="dash-total-answered">0</div>
+                            <div class="text-xs text-indigo-100">累計已答</div>
+                        </div>
+                        <div class="w-px h-8 bg-white/20"></div>
+                        <div class="text-center">
+                            <div class="text-2xl font-black text-amber-300" id="dash-wrong-count">0</div>
+                            <div class="text-xs text-indigo-100">錯題庫數量</div>
+                        </div>
+                        <div class="w-px h-8 bg-white/20"></div>
+                        <div class="text-center">
+                            <div class="text-2xl font-black text-emerald-300" id="dash-accuracy">0%</div>
+                            <div class="text-xs text-indigo-100">平均正確率</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quiz Options Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Card 1: Full Exam / Standard Quiz -->
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 hover:shadow-md transition-shadow flex flex-col justify-between">
+                    <div>
+                        <div class="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center text-2xl mb-4">
+                            <i class="fa-solid fa-play"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-900 mb-2">完整題庫測驗 (171 題)</h3>
+                        <p class="text-slate-600 text-sm mb-4">系統化練習完整 171 題。答題錯誤立即顯示詳細觀念與語法解析。</p>
+                    </div>
+                    <div class="space-y-3">
+                        <div class="flex gap-2">
+                            <button onclick="startQuiz('all', false)" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2.5 px-4 rounded-xl text-sm transition-colors text-center">
+                                順序測驗
+                            </button>
+                            <button onclick="startQuiz('all', true)" class="flex-1 bg-indigo-50 border border-indigo-200 text-indigo-700 hover:bg-indigo-100 font-semibold py-2.5 px-4 rounded-xl text-sm transition-colors text-center flex items-center justify-center gap-1.5">
+                                <i class="fa-solid fa-shuffle text-xs"></i> 隨機打亂
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 2: Wrong Questions Retry (錯題重測) -->
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 hover:shadow-md transition-shadow flex flex-col justify-between relative overflow-hidden">
+                    <div id="wrong-badge-card" class="absolute top-4 right-4 bg-red-100 text-red-700 text-xs font-bold px-2.5 py-1 rounded-full">
+                        <span id="card-wrong-count">0</span> 題待複習
+                    </div>
+                    <div>
+                        <div class="w-12 h-12 bg-red-100 text-red-600 rounded-xl flex items-center justify-center text-2xl mb-4">
+                            <i class="fa-solid fa-rotate-right"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-900 mb-2">錯題專攻重測 (Wrong Questions)</h3>
+                        <p class="text-slate-600 text-sm mb-4">集中鎖定歷次練習中答錯的題目進行專項訓練，直到徹底搞懂精通。</p>
+                    </div>
+                    <div>
+                        <button onclick="startQuiz('wrong', true)" id="btn-start-wrong" class="w-full bg-red-600 hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-2.5 px-4 rounded-xl text-sm transition-colors text-center flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-bullseye"></i> 開始錯題重測
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Card 3: Quick Quiz Mode -->
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 hover:shadow-md transition-shadow flex flex-col justify-between">
+                    <div>
+                        <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center text-2xl mb-4">
+                            <i class="fa-solid fa-bolt"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-900 mb-2">快速模擬抽測 (20 題)</h3>
+                        <p class="text-slate-600 text-sm mb-4">適合課前或零碎時間快速考前複習，隨機抽取 20 題測試熟練度。</p>
+                    </div>
+                    <div>
+                        <button onclick="startQuiz('quick', true)" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2.5 px-4 rounded-xl text-sm transition-colors text-center">
+                            開始快速抽測
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Category Topics Quick Start -->
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+                <h3 class="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-layer-group text-indigo-600"></i> 按知識單元分段練習
+                </h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" id="category-grid">
+                    <!-- Categories will be rendered by JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. QUIZ / TEST VIEW -->
+        <section id="view-quiz" class="hidden max-w-4xl mx-auto space-y-6">
+            <!-- Quiz Control & Progress Header -->
+            <div class="bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-slate-200 space-y-4">
+                <div class="flex flex-wrap items-center justify-between gap-3 text-sm">
+                    <div class="flex items-center space-x-2">
+                        <span id="quiz-mode-tag" class="bg-indigo-100 text-indigo-800 font-semibold px-2.5 py-1 rounded-md text-xs">模式</span>
+                        <span class="text-slate-500">進度：</span>
+                        <span id="quiz-progress-text" class="font-bold text-slate-800">1 / 171</span>
+                    </div>
+
+                    <div class="flex items-center space-x-4">
+                        <div class="text-slate-600 text-xs sm:text-sm">
+                            <span class="text-emerald-600 font-bold" id="quiz-score-correct">答對: 0</span> | 
+                            <span class="text-red-600 font-bold" id="quiz-score-wrong">答錯: 0</span>
+                        </div>
+                        <button onclick="toggleBookmarkCurrent()" id="btn-bookmark" class="text-slate-400 hover:text-amber-500 text-lg transition-colors p-1" title="標記收藏本題">
+                            <i class="fa-regular fa-bookmark"></i>
+                        </button>
+                        <button onclick="exitQuiz()" class="text-slate-400 hover:text-slate-600 text-sm font-semibold px-2 py-1 rounded hover:bg-slate-100">
+                            結束離開
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Progress Bar -->
+                <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+                    <div id="quiz-progress-bar" class="bg-indigo-600 h-full transition-all duration-300 w-0"></div>
+                </div>
+            </div>
+
+            <!-- Question Card Container -->
+            <div id="quiz-card-container" class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200 space-y-6">
+                <!-- Question Title Header -->
+                <div class="space-y-2">
+                    <div class="flex items-start justify-between gap-4">
+                        <h3 id="question-text" class="text-lg sm:text-xl font-bold text-slate-900 leading-relaxed">
+                            題目載入中...
+                        </h3>
+                    </div>
+                    <div id="question-category" class="text-xs text-indigo-600 font-medium bg-indigo-50 inline-block px-2.5 py-1 rounded-md">
+                        知識模組
+                    </div>
+                </div>
+
+                <!-- Options List -->
+                <div id="options-container" class="space-y-3">
+                    <!-- Options JS Rendered -->
+                </div>
+
+                <!-- Instant Explanation / Feedback Box (Initially Hidden) -->
+                <div id="explanation-box" class="hidden p-5 rounded-xl border space-y-3 transition-all duration-300">
+                    <div class="flex items-center gap-2 font-bold text-base" id="explanation-title">
+                        <i id="explanation-icon" class="fa-solid"></i>
+                        <span id="explanation-status">回答結果</span>
+                    </div>
+                    <div class="text-sm leading-relaxed text-slate-700" id="explanation-text">
+                        解說內容...
+                    </div>
+                </div>
+
+                <!-- Footer Navigation Buttons -->
+                <div class="flex items-center justify-between pt-4 border-t border-slate-100">
+                    <button onclick="prevQuestion()" id="btn-prev-q" class="px-4 py-2 border border-slate-300 hover:bg-slate-50 text-slate-700 rounded-xl font-semibold text-sm transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+                        <i class="fa-solid fa-arrow-left mr-1"></i> 上一題
+                    </button>
+                    <button onclick="nextQuestion()" id="btn-next-q" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-semibold text-sm transition-colors flex items-center gap-1.5 shadow-sm">
+                        下一題 <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. RESULTS DASHBOARD VIEW -->
+        <section id="view-results" class="hidden max-w-4xl mx-auto space-y-6">
+            <div class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200 text-center space-y-6">
+                <div class="w-20 h-20 mx-auto rounded-full flex items-center justify-center text-3xl font-black" id="result-badge">
+                    <i class="fa-solid fa-trophy"></i>
+                </div>
+                
+                <div>
+                    <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900" id="result-title">測驗完成！</h2>
+                    <p class="text-slate-500 text-sm mt-1" id="result-subtitle">本次練習成果統計說明</p>
+                </div>
+
+                <!-- Score Grid -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 py-2">
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
+                        <div class="text-xs text-slate-500 font-medium">總題數</div>
+                        <div class="text-2xl font-bold text-slate-800 mt-1" id="res-total">0</div>
+                    </div>
+                    <div class="bg-emerald-50 p-4 rounded-xl border border-emerald-100">
+                        <div class="text-xs text-emerald-600 font-medium">答對數量</div>
+                        <div class="text-2xl font-bold text-emerald-600 mt-1" id="res-correct">0</div>
+                    </div>
+                    <div class="bg-red-50 p-4 rounded-xl border border-red-100">
+                        <div class="text-xs text-red-600 font-medium">答錯數量</div>
+                        <div class="text-2xl font-bold text-red-600 mt-1" id="res-wrong">0</div>
+                    </div>
+                    <div class="bg-indigo-50 p-4 rounded-xl border border-indigo-100">
+                        <div class="text-xs text-indigo-600 font-medium">正確率</div>
+                        <div class="text-2xl font-bold text-indigo-600 mt-1" id="res-accuracy">0%</div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex flex-wrap items-center justify-center gap-3 pt-2">
+                    <button onclick="startQuiz('wrong', true)" id="btn-res-retry-wrong" class="bg-red-600 hover:bg-red-700 text-white font-semibold px-5 py-2.5 rounded-xl text-sm transition-colors flex items-center gap-2">
+                        <i class="fa-solid fa-rotate-right"></i> 立即專攻錯題重測
+                    </button>
+                    <button onclick="switchView('home')" class="bg-slate-800 hover:bg-slate-900 text-white font-semibold px-5 py-2.5 rounded-xl text-sm transition-colors">
+                        返回主頁選單
+                    </button>
+                </div>
+            </div>
+
+            <!-- Detailed Answer Review -->
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 space-y-4">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b pb-4">
+                    <h3 class="text-lg font-bold text-slate-900">本次測驗答題明細</h3>
+                    <div class="flex items-center space-x-1 bg-slate-100 p-1 rounded-lg text-xs font-semibold">
+                        <button onclick="filterResultReview('all')" id="filter-res-all" class="px-3 py-1.5 rounded-md bg-white shadow-xs text-slate-800">全部</button>
+                        <button onclick="filterResultReview('incorrect')" id="filter-res-incorrect" class="px-3 py-1.5 rounded-md text-slate-600 hover:text-slate-900">僅看錯題</button>
+                        <button onclick="filterResultReview('correct')" id="filter-res-correct" class="px-3 py-1.5 rounded-md text-slate-600 hover:text-slate-900">答對題目</button>
+                    </div>
+                </div>
+
+                <div id="result-review-list" class="space-y-4">
+                    <!-- Review Questions Rendered via JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. BROWSE / SEARCH ALL QUESTIONS VIEW -->
+        <section id="view-browse" class="hidden space-y-6">
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 space-y-4">
+                <div class="flex flex-col md:flex-row justify-between items-stretch md:items-center gap-4">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-900">全題庫檢視與搜尋</h2>
+                        <p class="text-xs text-slate-500 mt-1">即時檢索 171 題考題語法觀念，快速進行重點複習</p>
+                    </div>
+                    <!-- Search Input -->
+                    <div class="relative min-w-[280px]">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-400 text-sm"></i>
+                        <input type="text" id="browse-search-input" oninput="renderBrowseList()" placeholder="搜尋關鍵字、標籤名稱或題號..." class="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all">
+                    </div>
+                </div>
+
+                <!-- Category Filters -->
+                <div class="flex flex-wrap gap-2 text-xs" id="browse-category-filters">
+                    <!-- Dynamic Category Pills -->
+                </div>
+            </div>
+
+            <!-- Questions List -->
+            <div id="browse-list" class="space-y-4">
+                <!-- JS Rendered -->
+            </div>
+        </section>
+
+        <!-- 5. BOOKMARKS VIEW -->
+        <section id="view-bookmarks" class="hidden space-y-6">
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 flex justify-between items-center">
+                <div>
+                    <h2 class="text-xl font-bold text-slate-900">我的收藏重點題庫</h2>
+                    <p class="text-xs text-slate-500 mt-1">標記難題與易錯題，方便隨時反覆研讀</p>
+                </div>
+                <button onclick="startQuiz('bookmarks', true)" id="btn-start-bookmarks-quiz" class="bg-amber-500 hover:bg-amber-600 text-white font-semibold px-4 py-2 rounded-xl text-sm transition-colors flex items-center gap-2">
+                    <i class="fa-solid fa-play"></i> 測驗收藏題
+                </button>
+            </div>
+
+            <div id="bookmarks-list" class="space-y-4">
+                <!-- JS Rendered -->
+            </div>
+        </section>
+
+        <!-- 6. STATISTICS VIEW -->
+        <section id="view-stats" class="hidden space-y-6">
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 space-y-6">
+                <div class="flex justify-between items-center border-b pb-4">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-900">個人學習與答題數據統計</h2>
+                        <p class="text-xs text-slate-500 mt-1">系統將資料自動儲存於此瀏覽器，方便追蹤進度</p>
+                    </div>
+                    <button onclick="clearAllData()" class="text-xs text-red-600 hover:bg-red-50 border border-red-200 px-3 py-1.5 rounded-lg font-medium transition-colors">
+                        <i class="fa-solid fa-trash-can mr-1"></i> 重設練習紀錄
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                    <div class="p-5 bg-indigo-50/50 rounded-2xl border border-indigo-100 text-center">
+                        <div class="text-xs text-indigo-600 font-semibold mb-1">總題庫完成率</div>
+                        <div class="text-3xl font-extrabold text-indigo-700" id="stat-completion">0%</div>
+                        <div class="text-xs text-slate-500 mt-2" id="stat-completion-sub">已解答 0 / 171 題</div>
+                    </div>
+                    <div class="p-5 bg-emerald-50/50 rounded-2xl border border-emerald-100 text-center">
+                        <div class="text-xs text-emerald-600 font-semibold mb-1">歷史累積正確率</div>
+                        <div class="text-3xl font-extrabold text-emerald-700" id="stat-accuracy">0%</div>
+                        <div class="text-xs text-slate-500 mt-2" id="stat-accuracy-sub">對 0 / 錯 0</div>
+                    </div>
+                    <div class="p-5 bg-red-50/50 rounded-2xl border border-red-100 text-center">
+                        <div class="text-xs text-red-600 font-semibold mb-1">錯題庫歷史剩餘</div>
+                        <div class="text-3xl font-extrabold text-red-700" id="stat-wrong-total">0 題</div>
+                        <div class="text-xs text-slate-500 mt-2">需進行錯題專攻重測</div>
+                    </div>
+                </div>
+
+                <!-- Knowledge Unit Breakdown Table -->
+                <div class="space-y-3">
+                    <h3 class="font-bold text-slate-800 text-base">各模組熟練度分析</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse text-sm">
+                            <thead>
+                                <tr class="bg-slate-50 border-b border-slate-200 text-slate-600">
+                                    <th class="py-3 px-4 font-semibold">主題單元</th>
+                                    <th class="py-3 px-4 font-semibold">題目數</th>
+                                    <th class="py-3 px-4 font-semibold">曾答錯數</th>
+                                    <th class="py-3 px-4 font-semibold">進度與熟練度</th>
+                                </tr>
+                            </thead>
+                            <tbody id="stat-category-table" class="divide-y divide-slate-100">
+                                <!-- Rendered JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-400 text-xs py-6 mt-12 border-t border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 text-center space-y-2">
+            <p>HTML5 網頁設計基礎期中考試題庫測驗系統 • 包含完整 171 題解答與專業語法解析</p>
+            <p class="text-slate-500">適合網頁前端開發初學者、期中考與職訓考照複習使用</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript Data Model and Logic -->
+    <script>
+        // ==========================================
+        // 1. EMBEDDED QUESTION DATABASE (171 Questions)
+        // ==========================================
+        const QUESTIONS_DATA = [
+            { id: 1, cat: "前端基礎概論", q: "網站開發的三大基礎語言是什麼?", options: ["HTML、Python、Java", "HTML、CSS、JavaScript", "CSS、PHP、MySQL", "JavaScript、Ruby、C++"], ans: "B", exp: "網頁前端三大的核心基礎語言分別為 HTML（負責結構與語意）、CSS（負責樣式外觀）與 JavaScript（負責互動與動態行為）。" },
+            { id: 2, cat: "前端基礎概論", q: "下列對 HTML、CSS、JavaScript 的描述，何者正確?", options: ["HTML負責外觀,CSS負責結構,JavaScript負責互動", "HTML負責結構,CSS負責外觀,JavaScript負責互動", "HTML負責互動,CSS負責結構,JavaScript負責外觀", "三者功能完全相同,可互相替代"], ans: "B", exp: "HTML 定義骨架與結構，CSS 美化外觀樣式，JavaScript 負責網頁與使用者之間的互動與動態行為。" },
+            { id: 3, cat: "開發工具與環境", q: "如何在 VS Code 中的 html 檔案中，快速建立 HTML5 基礎範本?", options: ["輸入 html 後按 Enter", "輸入 ! 後按 Enter", "輸入 template 後按 Enter", "直接開始寫 <html> 標籤"], ans: "B", exp: "在 VS Code 中，Emmet 快捷鍵輸入驚嘆號「!」再按 Enter 或 Tab，可快速展開標準 HTML5 骨架。" },
+            { id: 4, cat: "開發工具與環境", q: "瀏覽器的開發者工具可以用來做什麼?", options: ["編寫 Word 文件", "檢查網頁結構與除錯", "下載影片", "編輯圖片"], ans: "B", exp: "瀏覽器的開發者工具（DevTools/F12）是用來檢視 DOM 樹、測試 CSS 樣式、除錯 JavaScript 及監控網絡請求。" },
+            { id: 5, cat: "前端基礎概論", q: "DOM 的全名是什麼?", options: ["Data Object Model", "Document Object Model", "Dynamic Object Model", "Design Object Model"], ans: "B", exp: "DOM 代表 Document Object Model（文件物件模型），是將 HTML 文件樹狀結構化的介面。" },
+            { id: 6, cat: "HTML5 基礎語法", q: "在前端開發中，哪一項技術主要負責定義表單欄位與按鈕等頁面結構?", options: ["CSS", "JavaScript", "HTML", "SQL"], ans: "C", exp: "HTML（超文本標記語言）專門用來構建網頁的內容與組件結構（如表單、按鈕、段落）。" },
+            { id: 7, cat: "開發工具與環境", q: "為什麼不建議使用 Word 直接撰寫 HTML 網頁?", options: ["Word 是文字排版軟體,不是純文字程式編輯環境", "Word 只能開啟圖片,不能輸入文字", "Word 會自動把所有 HTML 變成 JavaScript", "Word 只能在瀏覽器中執行"], ans: "A", exp: "Word 是文書處理軟體，儲存時會附加大量非純文字格式碼，容易導致程式解析錯誤；應使用文字或程式編輯器（如 VS Code）。" },
+            { id: 8, cat: "開發工具與環境", q: "使用 Live Server 時，若按下 Go Live 沒反應，最常見的錯誤原因可能是?", options: ["沒有先建立資料庫", "沒有安裝外掛或沒有開啟資料夾", "沒有把 CSS 改成 Python", "瀏覽器不支援任何 HTML"], ans: "B", exp: "VS Code 的 Live Server 外掛需要先在編輯器中「開啟資料夾 (Open Folder)」，且需確保已成功安裝擴充功能。" },
+            { id: 9, cat: "開發工具與環境", q: "建立第一個專案時，建議新增的主要 HTML 檔案名稱是?", options: ["style.css", "main.py", "index.html", "server.js"], ans: "C", exp: "Web 伺服器預設的入口首頁檔案名稱通常為 index.html。" },
+            { id: 10, cat: "前端基礎概論", q: "瀏覽器讀取 HTML 後建立 DOM Tree，主要代表的是什麼?", options: ["圖片壓縮後的檔案大小", "使用者的登入密碼", "CSS 顏色的隨機清單", "網頁標籤之間的層級關係"], ans: "D", exp: "DOM Tree 是瀏覽器解析 HTML 標籤後，依父子、兄弟節點建立的網頁元素層級樹狀結構。" },
+            { id: 11, cat: "開發工具與環境", q: "若想看到網頁在瀏覽器中即時解析後的元素結構與樣式，應優先使用哪個功能?", options: ["開發者工具的 Inspect/Elements", "檢視原始碼 (View Page Source)", "下載網頁圖片", "清除瀏覽紀錄"], ans: "A", exp: "Elements/Inspect（檢查元素）可以即時動態查看與調試目前的 DOM 結構與套用的 CSS 樣式。" },
+            { id: 12, cat: "瀏覽器運作原理", q: "在瀏覽器核心組件中，負責將結構轉換成實際畫面的通常是哪一項?", options: ["Parser", "Rendering Engine", "JavaScript Engine", "File Explorer"], ans: "B", exp: "渲染引擎（Rendering Engine，如 Blink、WebKit）負責解析 HTML/CSS 並繪製計算畫面。" },
+            { id: 13, cat: "前端基礎概論", q: "React、Vue、Angular 這類框架與 HTML、CSS、JavaScript 的關係，何者正確?", options: ["它們完全取代 HTML、CSS、JavaScript", "它們只能用來編輯圖片", "它們建立在 HTML、CSS、JavaScript 之上進一步封裝", "它們是瀏覽器的替代品"], ans: "C", exp: "現代前端框架（React/Vue/Angular）是基於原生 HTML, CSS, JS 的高級抽象封裝與工具庫。" },
+            { id: 14, cat: "HTML5 基礎語法", q: "如果網頁只剩 HTML、沒有 CSS，最可能的結果是?", options: ["所有互動都會自動完成", "瀏覽器會變成資料庫", "HTML 會自動產生伺服器", "內容仍可顯示,但外觀可能單調難讀"], ans: "D", exp: "純 HTML 只提供無樣式的語意結構，瀏覽器會以預設字型與排版呈現，內容可讀但排版美觀度較低。" },
+            { id: 15, cat: "HTML5 基礎語法", q: "下列哪一項最能說明 HTML「不是只有程式碼，而是資訊結構語言」的意思?", options: ["HTML 能用標籤表達標題、段落等內容層次", "HTML 只能用來設定文字顏色", "HTML 會自動幫網站建立會員系統", "HTML 必須連接資料庫才會出現畫面"], ans: "A", exp: "HTML（Markup Language）透過 h1, p, article 等標籤，賦予文字資料明確的層次與語意結構。" },
+            { id: 16, cat: "瀏覽器運作原理", q: "當瀏覽器開啟 index.html 時，下列流程最接近實際運作邏輯?", options: ["先刪除 HTML,再下載資料庫", "讀取檔案、解析成 DOM Tree,再結合 CSS 與 JavaScript 呈現畫面", "只執行 CSS,完全不讀 HTML", "直接把檔案轉成 Word 文件"], ans: "B", exp: "標準流程為：載入 HTML -> 解析 DOM Tree -> 下載與解析 CSS (CSSOM) -> 合併成 Render Tree 並渲染畫面。" },
+            { id: 17, cat: "瀏覽器運作原理", q: "下列何者最符合瀏覽器在前端中的核心角色?", options: ["把 SQL 查詢轉成資料表", "只負責下載圖片,不處理程式碼", "把 Python 程式直接編譯成可執行檔", "解析 HTML、CSS、JavaScript 並即時渲染為可互動畫面"], ans: "D", exp: "瀏覽器的角色就是前端代碼的執行與渲染平台。" },
+            { id: 18, cat: "瀏覽器運作原理", q: "在網頁載入流程中，哪個結果最接近瀏覽器解析 HTML 後建立的結構?", options: ["DOM Tree (文件物件模型樹)", "Docker Image", "關聯式資料表索引", "二進位機器碼區段"], ans: "A", exp: "HTML 檔案經由 Parser 解析後，在記憶體中建立 DOM Tree。" },
+            { id: 19, cat: "開發工具與環境", q: "若要檢查頁面中某個按鈕的實際結構與即時樣式，最適合使用哪項工具?", options: ["檢視原始碼 (View Page Source)", "系統工作管理員", "開發者工具 (DevTools) 的 Elements 面板", "瀏覽器書籤管理器"], ans: "C", exp: "Elements 面板是實時觀察與修改 DOM 與 CSS 的最佳場所。" },
+            { id: 20, cat: "開發工具與環境", q: "下列何者正確描述「檢視原始碼」(View Page Source) 與「DevTools Inspect」的差異?", options: ["兩者都只能看後端資料庫內容", "View Page Source 看初始 HTML; Inspect 可看到互動後更新的 DOM", "View Page Source 可修改畫面且永久儲存; Inspect 不行", "Inspect 只能看 CSS,不能看 HTML 結構"], ans: "B", exp: "View Page Source 是伺服器傳來的原始 HTML 字串；Inspect 展示的是經 JS 動態修改後的即時 DOM 樹。" },
+            { id: 21, cat: "前端開發實務", q: "你要從零開始做一個互動式問答頁，以下哪個開發流程最符合教材整體脈絡?", options: ["先用 HTML 建立語意清楚的結構,再用 CSS 設計樣式與 hidden 狀態,最後用 JavaScript 綁定 click 事件切換 class", "先用 JavaScript 產生所有內容,不需要 HTML 結構或 CSS", "只放一張頁面截圖,避免寫任何標籤", "先做 Open Graph,再刪除所有按鈕"], ans: "A", exp: "遵循關注點分離（Separation of Concerns）：先結構(HTML) -> 次外觀(CSS) -> 後行為(JS)。" },
+            { id: 22, cat: "HTML5 基礎語法", q: "下列何者是 HTML 的完整名稱?", options: ["HyperText Making Language", "HyperText Markup Language", "HighText Markup Language", "HyperTool Markup Language"], ans: "B", exp: "HTML 的全名為 HyperText Markup Language（超文本標記語言）。" },
+            { id: 23, cat: "HTML5 基礎語法", q: "HTML 文件中，哪個區塊負責放置實際顯示在畫面的內容?", options: ["<head>", "<body>", "<html>", "<meta>"], ans: "B", exp: "<body> 標籤內部放置所有呈現在瀏覽器可視區域中的實體內容。" },
+            { id: 24, cat: "HTML5 基礎語法", q: "下列哪個標籤用於定義最高層級的標題?", options: ["<h6>", "<h3>", "<h1>", "<title>"], ans: "C", exp: "<h1> 代表最高等級（最重要）的主標題，依次遞減至 <h6>。" },
+            { id: 25, cat: "HTML5 基礎語法", q: "<!DOCTYPE html> 的作用是什麼?", options: ["定義網頁的標題", "告訴瀏覽器這是 HTML5 文件", "設定文字編碼", "建立段落"], ans: "B", exp: "<!DOCTYPE html> 宣告文件類型，指示瀏覽器以標準 HTML5 模式進行解析。" },
+            { id: 26, cat: "語意化標籤", q: "下列哪個標籤具有語意上的「重要強調」意義?", options: ["<b>", "<i>", "<strong>", "<u>"], ans: "C", exp: "<strong> 具有「重要性 (Importance/Warning)」語意，<b> 僅為視覺加粗。" },
+            { id: 27, cat: "HTML5 基礎語法", q: "若要在同一段落內換行，應該使用哪個標籤?", options: ["<p>", "<br>", "<hr>", "<div>"], ans: "B", exp: "<br>（Line Break）標籤用於在文字段落內部強制換行。" },
+            { id: 28, cat: "HTML5 基礎語法", q: "<meta charset=\"UTF-8\"> 的主要功能是什麼?", options: ["設定網頁標題", "避免中文亂碼", "建立超連結", "定義網頁描述"], ans: "B", exp: "指定字元編碼為 UTF-8 萬國碼，確保繁體中文等字元能正常顯示不出現亂碼。" },
+            { id: 29, cat: "HTML5 基礎語法", q: "小華寫了程式碼：<h1>我的網站<h1><p>歡迎...</p>，但標題與段落連在一起，原因為何?", options: ["缺少 <!DOCTYPE html>", "第一個 <h1> 的結束標籤錯誤,應為 </h1>", "段落標籤應該用 <div> 取代", "缺少 <meta> 標籤"], ans: "B", exp: "第一個 h1 沒有加斜線結束標籤（應為 </h1>），導致瀏覽器解析標籤未正確閉合。" },
+            { id: 30, cat: "HTML5 基礎語法", q: "下列哪一組標籤的組合使用方式正確?", options: ["<strong><em>重要且強調</strong></em>", "<p>段落文字<h1>標題</h1></p>", "<em>強調文字<strong>重要文字</strong></em>", "<body><head><title>標題</title></head></body>"], ans: "C", exp: "標籤必須正確交叉巢狀（後開先關）。C選項 <em> 內完全包覆 <strong>，順序符合規範。" },
+            { id: 31, cat: "語意化標籤", q: "若要建立一個包含作者資訊的網頁，下列哪個結構最符合 HTML 語意?", options: ["<p>作者:<b>張小明</b></p>", "<div>作者:<span>張小明</span></div>", "<p>作者:<strong>張小明</strong></p>", "<abbr>作者:張小明</abbr>"], ans: "C", exp: "使用 <p> 搭配 <strong> 或語意標籤包覆重點名稱最符合規範。" },
+            { id: 32, cat: "HTML5 基礎語法", q: "在 HTML 文件中，下列哪些內容應該放在 <head> 區塊而非 <body> 區塊?", options: ["<title> 和 <h1>", "<meta charset> 和 <p>", "<title> 和 <meta name=\"description\">", "<h1> 和 <meta charset>"], ans: "C", exp: "<head> 包含網頁中繼資料（Metadata），如 <title>, <meta>, <link>；<h1> 與 <p> 屬呈現內容應放於 <body>。" },
+            { id: 33, cat: "HTML5 基礎語法", q: "下列關於 HTML 標籤使用的敘述，何者正確?", options: ["所有標籤都必須成對出現", "<br> 和 <hr> 是自閉合標籤,不需要結束標籤", "標籤名稱有區分大小寫", "HTML 標籤可以任意巢狀,沒有順序限制"], ans: "B", exp: "<br>、<hr>、<img> 等為 Void Elements（空元素/自閉合標籤），不需要閉合標籤。" },
+            { id: 34, cat: "HTML5 基礎語法", q: "完整的 HTML5 文件結構中，<meta charset=\"UTF-8\"> 應該放在哪個區塊?", options: ["<body>", "<head>", "<html>", "<footer>"], ans: "B", exp: "<meta> 設定屬於網頁的標頭元資料，必須寫在 <head> 區塊中。" },
+            { id: 35, cat: "HTML5 基礎語法", q: "「HyperText」在 HTML 中主要強調哪一種能力?", options: ["只能顯示超大文字", "文字一定要使用紅色", "文字可以連結到其他頁面或資源", "只能在手機瀏覽器中顯示"], ans: "C", exp: "「超文本 (HyperText)」代表文件可以包含指向其他文本或資源的超連結 (Hyperlink)。" },
+            { id: 36, cat: "HTML5 基礎語法", q: "一個一般成對 HTML 元素通常由哪些部分組成?", options: ["檔案名稱、資料庫、伺服器", "顏色、動畫、音效", "圖片、影片、壓縮格式", "開始標籤、內容、結束標籤"], ans: "D", exp: "標準成對元素包含：<tag>（開始標籤）、Element Content（內容）與 </tag>（結束標籤）。" },
+            { id: 37, cat: "語意化標籤", q: "若想表達朗讀時語意上的強調 (Stress Emphasis)，較適合使用哪個標籤?", options: ["<em>", "<strong>", "<title>", "<meta>"], ans: "A", exp: "<em>（Emphasis）用於語氣上的強調；<strong> 用於重要性加強。" },
+            { id: 38, cat: "語意化標籤", q: "若只是想讓某個關鍵字在視覺上變粗，但不想賦予「重要」語意，哪個標籤較符合?", options: ["<strong>", "<b>", "<blockquote>", "<html>"], ans: "B", exp: "<b> 標籤表示純視覺上的加粗，無特殊語意重要性。" },
+            { id: 39, cat: "語意化標籤", q: "下列哪個標題使用方式較符合最佳實務?", options: ["為了字體變小,從 <h1> 直接跳到 <h5>", "全站只使用 <h6> 當所有標題", "依照內容層次由 <h1>、<h2>、<h3> 逐層安排", "用 <p> 取代所有標題標籤"], ans: "C", exp: "標題標籤應按文件結構順序 (h1 -> h2 -> h3) 階層化使用，不可為了視覺大小跳級。" },
+            { id: 40, cat: "HTML 字元實體", q: "若要在網頁文字中正確顯示 Tom & Jerry，其中 & 建議寫成哪個 HTML Entity?", options: ["&amp;", "&lt;", "&gt;", "&copy;"], ans: "A", exp: "& 符號在 HTML 中有保留用途，實體字元轉義為 &amp;。" },
+            { id: 41, cat: "HTML 字元實體", q: "若要在頁面上顯示版權符號 ©，可使用哪個 HTML Entity?", options: ["&amp;", "&copy;", "&quot;", "&apos;"], ans: "B", exp: "&copy; 轉義後呈現為版權宣告圖示 ©。" },
+            { id: 42, cat: "SEO 與 Meta 標籤", q: "<meta name=\"description\" content=\"...\"> 放在 <head> 中的主要用途是?", options: ["在頁面中新增主要標題", "強制所有文字換行", "提供搜尋引擎摘要或頁面描述資訊", "建立一個圖片按鈕"], ans: "C", exp: "Meta Description 提供搜尋引擎做 SERP 搜尋結果頁的簡介文字。" },
+            { id: 43, cat: "HTML5 基礎語法", q: "在 HTML 骨架中，<html lang=\"zh-Hant\"> 的 lang 屬性主要表達什麼?", options: ["檔案一定要放在台灣伺服器", "網頁只能顯示中文標點", "瀏覽器必須關閉 JavaScript", "文件主要語言是繁體中文"], ans: "D", exp: "lang 屬性宣告網頁主要語言（zh-Hant 代表繁體中文），利於螢幕閱讀器與搜尋引擎判讀。" },
+            { id: 44, cat: "HTML5 基礎語法", q: "在一篇短文中，若想插入一條水平分隔線來區分段落區塊，較適合使用哪個標籤?", options: ["<hr>", "<meta>", "<title>", "<html>"], ans: "A", exp: "<hr>（Horizontal Rule）表示段落之間主題式的水平轉折分隔線。" },
+            { id: 45, cat: "HTML 字元實體", q: "若希望文字中的空格不被瀏覽器一般換行處理，可使用哪個 HTML Entity?", options: ["&copy;", "&nbsp;", "&lt;", "&gt;"], ans: "B", exp: "&nbsp; 代表 Non-Breaking Space（不換行空白）。" },
+            { id: 46, cat: "HTML5 基礎語法", q: "HTML 巢狀結構指的是什麼?", options: ["元素可以包在其他元素內形成層級", "所有標籤都只能平行排列", "只能用在表格中", "只能在 <head> 內使用"], ans: "A", exp: "巢狀結構（Nesting）是指標籤內部可包含其他子元素標籤。" },
+            { id: 47, cat: "HTML5 基礎語法", q: "下列哪個是「自閉合標籤」範例?", options: ["<p></p>", "<img src=\"cat.jpg\" alt=\"cat\" />", "<h1></h1>", "<div></div>"], ans: "B", exp: "<img> 不需要結束標籤，屬於自閉合單一標籤。" },
+            { id: 48, cat: "HTML5 基礎語法", q: "下列哪個敘述最符合對 HTML 的定位?", options: ["網頁內容結構與語意的標記語言", "後端資料庫語言", "專門做動畫的語言", "伺服器部署腳本語言"], ans: "A", exp: "HTML 是建立網頁骨架與資訊語意結構的標準標記語言。" },
+            { id: 49, cat: "HTML5 基礎語法", q: "網頁最常見的萬國編碼為?", options: ["ASCII", "UTF-8", "Big5", "ISO"], ans: "B", exp: "UTF-8 是現代 Web 的標準萬國字元集編碼。" },
+            { id: 50, cat: "HTML5 基礎語法", q: "下列何者是正確的 HTML5 文件宣告?", options: ["<!DOCTYPE HTML5>", "<doctype html>", "<!DOCTYPE html>", "<html>"], ans: "C", exp: "HTML5 標準 DOCTYPE 簡潔不區分大小寫，標準格式為 <!DOCTYPE html>。" },
+            { id: 51, cat: "SEO 與 Meta 標籤", q: "<link rel=\"icon\"> 通常用來設定什麼?", options: ["網頁圖示 (Favicon)", "CSS 樣式表", "字體檔案", "JavaScript 檔案"], ans: "A", exp: "rel=\"icon\" 用於指定瀏覽器分頁頁籤上顯示的網頁圖示 (Favicon)。" },
+            { id: 52, cat: "HTML5 基礎語法", q: "<body> 區塊主要放置什麼?", options: ["只放 SEO 關鍵字", "只放 JavaScript 檔案", "實際顯示在頁面上的內容", "只放資料庫連線設定"], ans: "C", exp: "所有要給使用者在瀏覽器視窗觀看的內容均放在 <body> 中。" },
+            { id: 53, cat: "語意化標籤", q: "建議一份文件的 <h1> 通常使用幾次?", options: ["無限制", "1次", "0次", "6次"], ans: "B", exp: "為維護良好的 SEO 與頁面語意結構，每個獨立頁面建議僅有一個主標題 <h1>。" },
+            { id: 54, cat: "HTML 字元實體", q: "若要在畫面上顯示 <br> 文字本身，而不是被瀏覽器當成標籤解析，應使用哪個字元實體?", options: [">br<", "&amp;br&amp;", "&quot;br&quot;", "&lt;br&gt;"], ans: "D", exp: "< 轉寫為 &lt;，> 轉寫為 &gt;，故顯示為 &lt;br&gt;。" },
+            { id: 55, cat: "語意化標籤", q: "HTML 文件中共分為幾個標題等級 (Heading Levels)?", options: ["6個", "3個", "5個", "7個"], ans: "A", exp: "HTML 提供 h1 至 h6 共 6 個層級的標題標籤。" },
+            { id: 56, cat: "語意化標籤", q: "一個網頁應該有幾個 <main> 標籤?", options: ["0個", "1個", "2個以上", "不限制"], ans: "B", exp: "<main> 代表頁面的主要獨特內容，規範全頁應保持唯一 (1個)。" },
+            { id: 57, cat: "語意化標籤", q: "若要標示機器可讀的日期與時間，應使用哪個語意標籤?", options: ["<span datetime=\"...\">", "<time datetime=\"...\">", "<date value=\"...\">", "<moment time=\"...\">"], ans: "B", exp: "<time> 標籤搭配 datetime 屬性（如 <time datetime=\"2026-11-05\">）可供搜尋引擎與機器精確解析日期。" },
+            { id: 58, cat: "無障礙與可及性 (WCAG)", q: "對於純裝飾性的圖片，alt 屬性應該如何設定?", options: ["不需要 alt 屬性", "alt=\"\" (空白)", "alt=\"裝飾圖片\"", "alt=\"image\""], ans: "B", exp: "無障礙規範中，純裝飾圖片應設為 alt=\"\" 空字串，讓螢幕閱讀器自動跳過不朗讀。" },
+            { id: 59, cat: "無障礙與可及性 (WCAG)", q: "下列何者不是 WCAG 的四大核心原則?", options: ["可感知 (Perceivable)", "可操作 (Operable)", "可獲利 (Profitable)", "可理解 (Understandable)"], ans: "C", exp: "WCAG 2.1 四大原則為 POWR：Perceivable（可感知）、Operable（可操作）、Understandable（可理解）、Robust（穩健性）。非 Profitable（可獲利）。" },
+            { id: 60, cat: "無障礙與可及性 (WCAG)", q: "表單欄位的 <label> 主要用途是什麼?", options: ["美化樣式", "提供欄位說明,提升可及性", "驗證輸入", "儲存資料"], ans: "B", exp: "<label> 為表單控制項提供文字說明，擴大點擊區域，並利於無障礙輔助具讀取。" },
+            { id: 61, cat: "SEO 與 Meta 標籤", q: "<title> 標籤的建議長度是多少字元?", options: ["20-30字元", "50-60字元", "100-120字元", "不限制"], ans: "B", exp: "搜尋引擎 (Google) 建議 <title> 保持在 50-60 字元間，避免在 SERP 結果中被截斷。" },
+            { id: 62, cat: "無障礙與可及性 (WCAG)", q: "小華想打造可及性友善的個人部落格，下列哪個設計最不符合 WCAG 標準?", options: ["所有圖片都加上 alt 屬性", "表單欄位都有對應的 <label>", "使用淺灰色文字 (#ccc) 搭配白色背景 (#fff)", "確保所有功能都可以用鍵盤操作"], ans: "C", exp: "白底淡灰字（#ccc / #fff）對比度極低，嚴重違反 WCAG 的文字色彩對比度標準（至少 4.5:1）。" },
+            { id: 63, cat: "語意化標籤", q: "下列哪個網頁結構最符合語意化與 SEO 最佳實務?", options: ["選項 A (純 div)", "選項 B (無 main)", "選項 C (完整 header, main, article, footer 結構)", "選項 D (混亂排版)"], ans: "C", exp: "選項 C 清晰使用 <header>、<nav>、<main>、<article> 與 <footer>，結構語意極佳。" },
+            { id: 64, cat: "SEO 與 Meta 標籤", q: "若要優化一個新聞網站的 SEO，下列哪個策略最完整?", options: ["只要在 head 中加入 meta keywords", "每頁都用相同的 title", "結合 title、meta description、語意標籤、結構化資料、Open Graph 標籤", "把所有文字都設定為 h1"], ans: "C", exp: "全方位的 SEO 需整合良好標題、中繼說明、標準語意標籤、Schema 結構化標籤與社群 Open Graph。" },
+            { id: 65, cat: "語意化標籤", q: "下列關於 <article> 和 <section> 標籤的使用，何者正確?", options: ["article 只能用一次", "article 內不能再包含 article", "article 是獨立完整的內容,可單獨分發; section 是主題性區段", "兩者完全相同"], ans: "C", exp: "<article> 代表可獨立重用的完整文章/組件；<section> 用於劃分大文章內的章節主題。" },
+            { id: 66, cat: "SEO 與 Meta 標籤", q: "網站 B 搜尋結果包含完整摘要與星級評分，網站 B 可能包含以下哪些設定?", options: ["只有 title 標籤", "title 和 h1 標籤", "title、meta description、結構化資料 (Structured Data)", "只有 Open Graph 標籤"], ans: "C", exp: "Google 搜尋結果的星級與評論區塊屬於結構化資料 (JSON-LD / Rich Results) 的呈現成果。" },
+            { id: 67, cat: "語意化標籤", q: "完整的語意化網頁結構應包含哪些主要標籤?", options: ["<div>, <span>, <p>", "<header>, <main>, <footer>", "<table>, <form>, <list>", "<section>, <aside>, <nav> 但不需要 <main>"], ans: "B", exp: "現代網頁標準的三大頁面頂層骨架為 <header>（頁首）、<main>（主內容區）與 <footer>（頁尾）。" },
+            { id: 68, cat: "SEO 與 Meta 標籤", q: "<meta name=\"description\"> 標籤的主要用途是什麼?", options: ["設定網頁字元編碼", "提供網頁摘要給搜尋引擎", "設定網頁關鍵字", "定義網頁標題"], ans: "B", exp: "Meta Description 提供摘要內容給搜尋引擎生成檢視片段。" },
+            { id: 69, cat: "語意化標籤", q: "以下語意化網頁結構中，哪個是最嚴重的錯誤?", options: ["標題從 h1 跳到 h3", "重複使用兩個 <main> 標籤", "缺少 nav 導覽列", "缺少 footer 頁尾"], ans: "B", exp: "規範明確要求一個文件中預設不可同時出現多個未隱藏的 <main> 標籤。" },
+            { id: 70, cat: "語意化標籤", q: "在 HTML 中，若要引用一段較長的文字 (如名言或書摘)，應使用哪個標籤?", options: ["<q>", "<cite>", "<blockquote>", "<abbr>"], ans: "C", exp: "<blockquote> 用於塊級長篇引用；<q> 則用於行內短引用。" },
+            { id: 71, cat: "語意化標籤", q: "下列哪個標籤適合標示縮寫，並可透過 title 屬性提供完整名稱?", options: ["<cite>", "<q>", "<mark>", "<abbr>"], ans: "D", exp: "<abbr title=\"HyperText Markup Language\">HTML</abbr> 用於表示縮寫字。" },
+            { id: 72, cat: "語意化標籤", q: "<abbr title=\"...\"></abbr> 中 title 屬性的作用是?", options: ["提供縮寫的完整說明", "設定字體顏色", "建立下載連結", "控制段落行高"], ans: "A", exp: "title 屬性可在滑鼠懸停時顯示原名全稱懸浮提示。" },
+            { id: 73, cat: "語意化標籤", q: "若要在圖片下方加入圖說，較合適的語意結構是?", options: ["<img> + <p>", "<figure> + <figcaption>", "<div> + <span>", "<section> + <h6>"], ans: "B", exp: "<figure> 用於包裹圖表/圖片，搭配 <figcaption> 為其加上說明圖說。" },
+            { id: 74, cat: "語意化標籤", q: "<article> 標籤適合用來包裹何種內容?", options: ["版權聲明", "側邊欄", "具有獨立意義的文章或內容區塊", "網頁的背景"], ans: "C", exp: "<article> 適合部落格文章、新聞報導、論壇貼文等可獨立閱讀與發布的單元。" },
+            { id: 75, cat: "語意化標籤", q: "標示網頁頂端頁首區塊的標籤是?", options: ["<footer>", "<aside>", "<section>", "<header>"], ans: "D", exp: "<header> 用於呈現頁頭介紹、標題或導覽列。" },
+            { id: 76, cat: "語意化標籤", q: "若要標示一段「被螢光筆畫記」的重點文字，應使用哪個語意標籤?", options: ["<mark>", "<b>", "<em>", "<span>"], ans: "A", exp: "<mark> 具有被黃色螢光筆畫記強調相符性的視覺與語意效果。" },
+            { id: 77, cat: "語意化標籤", q: "為了表示文件中的修訂紀錄，刪除的文字用 <del>，新增的文字應用?", options: ["<add>", "<ins>", "<new>", "<plus>"], ans: "B", exp: "<ins>（Inserted Text）代表檔案修訂中新增加的文字，通常帶有下劃線。" },
+            { id: 78, cat: "語意化標籤", q: "<address> 標籤的主要用途是?", options: ["顯示任何地址", "顯示地圖", "顯示 IP 位址", "專指該份文件或文章「作者/聯絡人」的聯絡資訊"], ans: "D", exp: "<address> 專門用於放置文件或文章作者的聯絡資訊（Email、地址、電話等）。" },
+            { id: 79, cat: "語意化標籤", q: "在 HTML5 語意化標籤中，哪一個通常用於表示頁面或區塊的頁尾區域?", options: ["<footer>", "<header>", "<nav>", "<aside>"], ans: "A", exp: "<footer> 用於頁尾版權宣告、相關連結或聯絡資訊區。" },
+            { id: 80, cat: "語意化標籤", q: "<mark> 標籤主要用途是?", options: ["表示最重要語意", "表示已刪除文字", "突出顯示需要注意或相關內容", "宣告程式碼區塊"], ans: "C", exp: "<mark> 用於突出顯示高亮（Highlight）文字。" },
+            { id: 81, cat: "語意化標籤", q: "使用語意化標籤的好處，不包含下列哪一項?", options: ["自動幫網頁加上漂亮的配色表", "提升螢幕閱讀器的無障礙體驗", "幫助開發者理解代碼結構", "提升 SEO 排名"], ans: "A", exp: "語意化標籤不會自動套用高級美工配色（配色需靠 CSS 設計）。" },
+            { id: 82, cat: "語意化標籤", q: "為了良好語意與 SEO，網頁的頁首導覽列通常使用什麼標籤?", options: ["<top> 和 <menu>", "<header> 和 <nav>", "<div> 和 <ul>", "<section> 和 <a>"], ans: "B", exp: "導覽頁頭最佳組合為 <header> 包裹 <nav>。" },
+            { id: 83, cat: "語意化標籤", q: "<aside> 標籤常用於什麼情境?", options: ["強調文字", "替換換行符號", "定義主要文章的側邊欄或補充資訊", "內嵌其他網頁"], ans: "C", exp: "<aside> 用於放置與主內容次要相關的側欄（Sidebar）或廣告資訊。" },
+            { id: 84, cat: "語意化標籤", q: "語意化 HTML 的核心概念是?", options: ["用能表達內容意義的標籤", "只用 <div> 加上 class 命名", "移除所有標籤只留文字", "只在 CSS 中寫語意"], ans: "A", exp: "選擇「符合內容意義」的標籤，而非單純選用無語意的 div 或 span。" },
+            { id: 85, cat: "語意化標籤", q: "<time> 標籤的 datetime 屬性主要提供什麼價值?", options: ["讓字體自動放大", "提供機器可讀的日期時間格式", "自動換算時區顏色", "取代 CSS 動畫"], ans: "B", exp: "datetime 屬性提供標準化 (ISO 8601) 的機器可讀日期格式。" },
+            { id: 86, cat: "語意化標籤", q: "標示網頁主要導覽列的標籤是?", options: ["<header>", "<main>", "<nav>", "<links>"], ans: "C", exp: "<nav>（Navigation）用來標示主導覽清單連結區塊。" },
+            { id: 87, cat: "語意化標籤", q: "在語意化頁面中，通常哪個標籤代表主要內容區，且全頁建議唯一?", options: ["<section>", "<article>", "<aside>", "<main>"], ans: "D", exp: "<main> 為主要獨特內容區，全頁唯一。" },
+            { id: 88, cat: "無障礙與可及性 (WCAG)", q: "下列何者是無障礙網頁設計 (Web Accessibility) 的重要實踐?", options: ["所有圖示都必須是紅色的", "隱藏所有的 <input> 標籤", "替 <img> 提供準確的 alt 屬性", "禁止使用 CSS"], ans: "C", exp: "為 <img> 添加正確的 alt 替代文字是可及性 (WCAG) 最基礎的要求。" },
+            { id: 89, cat: "SEO 與 Meta 標籤", q: "在 SEO 友善的結構中，標題層級建議如何使用?", options: ["只用 <h6>", "隨機跳級,視覺好看即可", "用 <div> 取代所有標題", "依內容層次有序使用 h1 到 h6"], ans: "D", exp: "標題層級應按邏輯有序使用（h1 -> h2 -> h3），不可隨意跳級。" },
+            { id: 90, cat: "SEO 與 Meta 標籤", q: "SEO 代表什麼?", options: ["Search Engine Optimization", "Site Expansion Output", "Server Environment Organization", "Standard Elements of Objects"], ans: "A", exp: "SEO 全名為 Search Engine Optimization（搜尋引擎最佳化）。" },
+            { id: 91, cat: "SEO 與 Meta 標籤", q: "開發網頁時，常常使用 <meta name=\"viewport\">，其主要目的是?", options: ["限制網頁載入速度", "讓網站在手機上正常顯示,Google優先索引行動版網站", "加速資料庫連線", "防止別人複製網址"], ans: "B", exp: "Viewport 設定讓網頁縮放適應行動裝置，滿足 RWD 響應式與 Mobile-First SEO。" },
+            { id: 92, cat: "SEO 與 Meta 標籤", q: "<title> 與 <meta name=\"description\"> 對哪個面向最直接?", options: ["只影響本機儲存空間", "只影響音訊播放速度", "影響 SEO 與搜尋結果呈現", "只影響 Flex 排版"], ans: "C", exp: "Title 與 Meta Description 直接決定網頁在搜尋引擎結果頁 (SERP) 的卡片呈現。" },
+            { id: 93, cat: "語意化標籤", q: "<s> 與 <del> 的差異，何者正確?", options: ["兩者完全相同", "<s> 表示已刪除內容; <del> 表示不再準確", "差異在於 CSS", "<s> 表示不再準確但保留的內容; <del> 表示文件修訂中被刪除的內容"], ans: "D", exp: "<s> 代表文字不再正確（如失效價格）；<del> 代表文件編輯修訂中被刪除的內容。" },
+            { id: 94, cat: "語意化標籤", q: "<small> 標籤最適合用在哪種內容?", options: ["法律聲明、版權資訊、附註等次要內容", "主要標題", "影片播放控制列", "導覽列主選單"], ans: "A", exp: "<small> 在 HTML5 代表免責聲明、注意事項、版權文字等附註性次要小字。" },
+            { id: 95, cat: "語意化標籤", q: "<wbr> 的主要作用是?", options: ["強制每個位置都換行", "提供建議換行點,空間不足時瀏覽器可在該處斷行", "插入可見的破折號", "移除所有空白字元"], ans: "B", exp: "<wbr>（Word Break Opportunity）告訴瀏覽器長單字或網址在寬度不足時可以在此斷行。" },
+            { id: 96, cat: "語意化標籤", q: "關於 <details> 與 <summary>，何者正確?", options: ["<summary> 必須放在 <details> 之外", "<details> 只能放圖片", "<details> 可建立可展開內容, <summary> 作為可點擊標題", "兩者只在表格中可用"], ans: "C", exp: "<details> 提供可折疊展開容器，<summary> 作為預設顯示的可點擊標題。" },
+            { id: 97, cat: "語意化標籤", q: "<data value=\"100\">NT$ 100</data> 中 value 的語意是?", options: ["設定文字顏色", "控制字型大小", "設定連結目標", "提供機器可讀的原始值"], ans: "D", exp: "<data> 標籤可將人眼閱讀的字串連結至 value 屬性中機器可讀的數值資料。" },
+            { id: 98, cat: "語意化標籤", q: "<data> 與 data-* 自訂屬性的差異是?", options: ["<data> 是語意標籤; data-* 是自訂資料屬性", "兩者都只能用在 <img>", "兩者都只能存數字", "data-* 不能被 JS 讀取"], ans: "A", exp: "<data> 是標準 HTML 語意標籤；data-* 是附加在任意 HTML 標籤上的 HTML5 自訂屬性。" },
+            { id: 99, cat: "無障礙與可及性 (WCAG)", q: "下列何者屬於 WCAG 的四大原則之一?", options: ["Beautiful", "Perceivable (可感知)", "Compressible", "Monetizable"], ans: "B", exp: "WCAG 四大原則：Perceivable (可感知)、Operable (可操作)、Understandable (可理解)、Robust (穩健性)。" },
+            { id: 100, cat: "無障礙與可及性 (WCAG)", q: "為了鍵盤可及性，對焦樣式 (focus outline) 最佳實務是?", options: ["一律 outline: none", "只有滑鼠操作才需要焦點樣式", "可移除預設外框,但需提供清晰替代焦點提示", "只在手機版保留焦點"], ans: "C", exp: "不可直接抹除 outline 而不提供替代視覺提示，否則鍵盤使用者將無法辨別當前焦點位置。" },
+            { id: 101, cat: "無障礙與可及性 (WCAG)", q: "aria-describedby 最常用來做什麼?", options: ["設定元素背景圖", "讓元素自動提交表單", "讓元素變成唯讀", "指定元素的額外說明文字"], ans: "D", exp: "aria-describedby 指向其他元素的 ID，用來向輔具使用者提供更詳細的欄位提示或說明。" },
+            { id: 102, cat: "SEO 與 Meta 標籤", q: "Open Graph 標籤主要用於哪個情境?", options: ["優化社群平台分享預覽內容", "設定資料庫索引", "壓縮圖片檔案大小", "產生 CSS 動畫"], ans: "A", exp: "Open Graph (og:title, og:image 等) 用於控制分享至 FB、LINE 等社群平台時顯示的卡片內容。" },
+            { id: 103, cat: "SEO 與 Meta 標籤", q: "下列何者最可能出現在 robots.txt?", options: ["<meta name=\"description\" ...>", "User-agent: *", "@media (max-width: 768px)", "SELECT * FROM pages"], ans: "B", exp: "robots.txt 用於指示搜尋引擎爬蟲 (User-agent) 哪些頁面可以或禁止抓取。" },
+            { id: 104, cat: "SEO 與 Meta 標籤", q: "sitemap.xml 的主要用途是?", options: ["儲存使用者密碼", "記錄 CSS 變數", "列出網站重要頁面,幫助搜尋引擎索引", "提供 JavaScript 套件清單"], ans: "C", exp: "Sitemap 網站地圖列出網站上可供抓取的網頁網址，協助爬蟲高效建立索引。" },
+            { id: 105, cat: "前端開發實務", q: "將純 div 的版面改為語意化標籤，下列哪組替換最合理?", options: ["依序改成 <header>、<nav>、<main> 或 <article>、<footer>", "全部改成 <span>", "全部改成 <table>", "全部放進 <script>"], ans: "A", exp: "Top 區域替換為 header，Menu 替換為 nav，Content 替換為 main/article，Bottom 替換為 footer。" },
+            { id: 106, cat: "無障礙與可及性 (WCAG)", q: "電商商品卡片圖片寫法：<figure><img src=\"shoe.jpg\"><figcaption>限量紅色慢跑鞋</figcaption></figure>，若要讓圖片更友善，應如何改善?", options: ["替 img 加上具體描述圖片內容的 alt 屬性", "移除 figcaption", "把 src 改成 href", "加上 hidden"], ans: "A", exp: "即使有 figcaption，<img> 標籤仍應具備清楚的 alt 屬性（如 alt=\"紅色慢跑鞋側面照片\"）。" },
+            { id: 107, cat: "表格與表單", q: "呈現課程成績資料，哪個 HTML 結構最符合資料表格語意?", options: ["使用 <table>，並搭配 <thead>、<tbody>、<th>、<td>", "使用多個 <div> 排版", "把資料做成一張圖片", "使用 <iframe> 取代表格"], ans: "A", exp: "結構完整的數據表格應使用 <table> 搭配 <thead>, <tbody>, <th>, <td> 標籤。" },
+            { id: 108, cat: "SEO 與 Meta 標籤", q: "現有 head 僅有 <title>課程介紹</title>，若希望社群與搜尋結果更清楚，應如何優化?", options: ["補充 <meta name=\"description\"> 並加入 Open Graph 標籤", "在 body 放很多 <br>", "把所有標題都改成 <span>", "用 cursor: pointer 取代 meta"], ans: "A", exp: "補齊 Description 及 Open Graph (og:image / og:title) 可優化 SERP 顯示與社群分享效果。" },
+            { id: 109, cat: "語意化標籤", q: "結構：<h1>HTML教學</h1><h3>什麼是HTML?</h3><h2>常用標籤</h2>，主要問題為何?", options: ["從 h1 直接跳到 h3，標題層級不夠連續", "h1 不能出現在文章中", "h2 一定要放在 h1 前面", "heading 標籤只能用來設定顏色"], ans: "A", exp: "標題順序應遞進（h1 -> h2 -> h3），直接從 h1 跳到 h3 會破壞結構連貫性。" },
+            { id: 110, cat: "無障礙與可及性 (WCAG)", q: "搜尋表單：<input type=\"text\" placeholder=\"搜尋文章\"><button>搜尋</button>，若要提升可及性應優先補上?", options: ["加入描述欄位用途的 <label> 並用 for/id 關聯輸入框", "把 input 改成 hidden", "把 button 改成 img", "刪除 placeholder"], ans: "A", exp: "單純 Placeholder 無法取代可及性標籤，應補上相應的 <label> 標籤。" },
+            { id: 111, cat: "超連結與清單", q: "下列何者是建立超連結的正確語法?", options: ["<link href=\"page.html\">點我</link>", "<a href=\"page.html\">點我</a>", "<url src=\"page.html\">點我</url>", "<hyperlink to=\"page.html\">點我</hyperlink>"], ans: "B", exp: "超連結使用 <a>（Anchor）標籤搭配 href 屬性。" },
+            { id: 112, cat: "超連結與清單", q: "若要讓超連結在新分頁開啟，應使用哪個屬性?", options: ["new=\"true\"", "target=\"_blank\"", "window=\"new\"", "open=\"tab\""], ans: "B", exp: "target=\"_blank\" 指示瀏覽器於新分頁/新視窗開啟連結。" },
+            { id: 113, cat: "超連結與清單", q: "下列哪個標籤用於建立無序清單?", options: ["<ol>", "<ul>", "<list>", "<menu>"], ans: "B", exp: "<ul> 代表 Unordered List（無序清單）；<ol> 代表 Ordered List（有序清單）。" },
+            { id: 114, cat: "多媒體與圖片", q: "<img> 標籤中，哪個屬性用於描述圖片內容 (對視障人士重要)?", options: ["title", "description", "alt", "caption"], ans: "C", exp: "alt（Alternative Text）屬性提供替代文字。" },
+            { id: 115, cat: "表格與表單", q: "在表格中，下列哪個標籤用於定義標題欄位 (通常是粗體)?", options: ["<td>", "<th>", "<tr>", "<thead>"], ans: "B", exp: "<th>（Table Header）定義表格的表頭標題儲存格。" },
+            { id: 116, cat: "表格與表單", q: "若要合併表格的兩個欄位 (跨列/跨欄)，跨欄應使用哪個屬性?", options: ["merge=\"2\"", "span=\"2\"", "colspan=\"2\"", "columns=\"2\""], ans: "C", exp: "colspan=\"2\" 代表水平跨越 2 欄 (Columns)。" },
+            { id: 117, cat: "表格與表單", q: "表單中，下列哪種 input type 會隱藏輸入的字元內容 (以圓點顯示)?", options: ["type=\"text\"", "type=\"hidden\"", "type=\"password\"", "type=\"secret\""], ans: "C", exp: "type=\"password\" 輸入時自動遮蔽字元以維護隱私。" },
+            { id: 118, cat: "超連結與清單", q: "點擊圖片就能跳轉頁面，寫法何者正確?", options: ["<img src=\"logo.png\" href=\"about.html\" />", "<a href=\"about.html\"><img src=\"logo.png\" alt=\"關於我們\"/></a>", "<img><a href=\"about.html\">...</a></img>", "<link href=\"about.html\"><img .../></link>"], ans: "B", exp: "將 <img> 標籤作為子元素包裹在 <a href=\"...\"> 超連結內。" },
+            { id: 119, cat: "表格與表單", q: "下列關於表格結構的敘述，何者正確?", options: ["<table> 內可以直接放 <td>", "<th> 只能用在表格第一行", "一個 <tr> 可以同時包含 <th> 和 <td>", "<thead> 必須全部使用"], ans: "C", exp: "<tr> 代表資料行，其子元素可同時包含標題 <th> 與一般儲存格 <td>。" },
+            { id: 120, cat: "表格與表單", q: "建立註冊表單，下列哪個結構最完整且符合最佳實務?", options: ["<form><input placeholder=\"帳號\">...</form>", "<form action=\"/register\" method=\"post\"><label for=\"username\">帳號:</label><input id=\"username\" name=\"username\">...</form>", "<div><input>...</div>", "<form>帳號:<input></form>"], ans: "B", exp: "完整表單需宣告 action、method，並為 input 配對相應的 label。" },
+            { id: 121, cat: "超連結與清單", q: "清單與連結組合，何者最符合語意且常見於導覽列?", options: ["<ul><a href=\"#\">首頁</a></ul>", "<nav><a href=\"#\">首頁</a></nav>", "<ul><li><a href=\"#\">首頁</a></li><li><a href=\"#\">關於</a></li></ul>", "<ol><a><li>首頁</li></a></ol>"], ans: "C", exp: "標準導覽清單寫法為 <ul> 或 <nav> 內部搭配 <li> 包含 <a> 連結。" },
+            { id: 122, cat: "超連結與清單", q: "若要建立一個有順序編號的清單，應該使用哪一個標籤?", options: ["<ul>", "<dl>", "<ol>", "<li>"], ans: "C", exp: "<ol>（Ordered List）自動為項目加上數字或字母順序。" },
+            { id: 123, cat: "超連結與清單", q: "<a> 標籤中必填且最重要的目標位址屬性是?", options: ["class", "id", "name", "href"], ans: "D", exp: "href（Hypertext Reference）指定跳轉的目標 URL 位址。" },
+            { id: 124, cat: "超連結與清單", q: "下列何者屬於描述清單 (Definition List) 組合?", options: ["<dl> + <dt> + <dd>", "<ul> + <li>", "<ol> + <li>", "<table> + <tr> + <td>"], ans: "A", exp: "<dl>（定義清單）包含 <dt>（項目名稱）與 <dd>（項目描述）。" },
+            { id: 125, cat: "超連結與清單", q: "錨點連結 (同頁跳轉) 通常使用哪種寫法?", options: ["href=\"/section-intro\"", "href=\"section-intro\"", "href=\"#section-intro\"", "href=\"@section-intro\""], ans: "C", exp: "使用井字號 # 加上目標元素的 ID 實現頁面內部跳轉。" },
+            { id: 126, cat: "超連結與清單", q: "清單內的每一項目使用什麼標籤包裹?", options: ["<ul>", "<a>", "<p>", "<li>"], ans: "D", exp: "<li>（List Item）為清單項目標籤。" },
+            { id: 127, cat: "超連結與清單", q: "購物清單項目順序不影響語意，何者最符合語意?", options: ["<ul><li>牛奶</li><li>麵包</li></ul>", "<ol><li>牛奶</li><li>麵包</li></ol>", "<dl>...</dl>", "<table>...</table>"], ans: "A", exp: "無順序關聯的清單項應使用無序清單 <ul> 搭配 <li>。" },
+            { id: 128, cat: "超連結與清單", q: "在 HTML 連結中，mailto: 是用來做什麼的?", options: ["寄送表單資料", "建立電子郵件連結", "連結到郵件伺服器", "下載郵件"], ans: "B", exp: "<a href=\"mailto:user@example.com\"> 可觸發客戶端預設電子郵件軟體發信。" },
+            { id: 129, cat: "多媒體與圖片", q: "iframe 的 sandbox 屬性主要用於?", options: ["提升載入速度", "啟用所有功能", "讓背景變成沙色", "限制嵌入內容的權限 (如禁止腳本執行、表單提交),提升安全性"], ans: "D", exp: "sandbox 屬性為 <iframe> 開啟沙盒防護機制，防範跨站攻擊風險。" },
+            { id: 130, cat: "多媒體與圖片", q: "下列哪種圖片格式支援 alpha 透明背景?", options: ["PNG", "JPG", "BMP", "TXT"], ans: "A", exp: "PNG 與 WebP 支援 Alpha 通道透明度背景。" },
+            { id: 131, cat: "多媒體與圖片", q: "網頁嵌入聲音檔的標籤是?", options: ["<video>", "<audio>", "<sound>", "<music>"], ans: "B", exp: "<audio> 標籤用於嵌入音訊檔案。" },
+            { id: 132, cat: "多媒體與圖片", q: "在 <video> 標籤中放置多個 <source> 的原因是?", options: ["同時播放多個影片", "備份影片", "提供不同格式 (如 mp4, webm) 讓瀏覽器選擇支援的格式播放", "增加畫質"], ans: "C", exp: "提供備用格式，瀏覽器會按順序自動挑選第一個支援的影音格式播放。" },
+            { id: 133, cat: "多媒體與圖片", q: "SVG 圖片的最大優勢是?", options: ["檔案最小", "點陣圖,色彩豐富", "瀏覽器預設不支援", "向量圖,無論放大多少倍都不會失真模糊"], ans: "D", exp: "SVG 是向量圖形格式（Vector Graphics），無損縮放不失真。" },
+            { id: 134, cat: "多媒體與圖片", q: "顯示圖片的標準 HTML 標籤是?", options: ["<img>", "<picture>", "<image>", "<figure>"], ans: "A", exp: "<img> 標籤用於向頁面嵌入影像圖片。" },
+            { id: 135, cat: "多媒體與圖片", q: " <picture> 標籤的主要功能為何?", options: ["加上相框特效", "用於響應式圖片,可根據螢幕尺寸或支援度載入不同 source", "直接編輯圖片", "把圖片轉為影片"], ans: "B", exp: "<picture> 包裹多個 <source> 與 <img>，實現 RWD 響應式圖片替換。" },
+            { id: 136, cat: "多媒體與圖片", q: "兼顧「圖片來源指定」與「載入失敗替代描述」的寫法?", options: ["<img href=\"a.jpg\" title=\"...\" />", "<img SOURCE=\"a.jpg\" desc=\"...\" />", "<img src=\"avatar.jpg\" alt=\"使用者頭像\" />", "<img file=\"a.jpg\" fallback=\"...\" />"], ans: "C", exp: "src 指定路徑，alt 指定失敗時顯示及輔助工具朗讀的替代文字。" },
+            { id: 137, cat: "多媒體與圖片", q: "以下哪一個屬性用來設定圖片資源的來源路徑?", options: ["link", "file", "path", "src"], ans: "D", exp: "src（Source）用來指定資源檔的路徑。" },
+            { id: 138, cat: "多媒體與圖片", q: "嵌入 YouTube 影片或外部網頁頁面的常見標籤?", options: ["<iframe>", "<embed>", "<video>", "<plugin>"], ans: "A", exp: "<iframe>（Inline Frame）常用於內嵌外部頁面或 YouTube 播放器。" },
+            { id: 139, cat: "多媒體與圖片", q: "產品卡片圖片載入失敗時，要讓螢幕閱讀器理解內容，最關鍵作法是?", options: ["只加 width 與 height", "正確撰寫 alt 替代文字", "用 title 取代", "把圖片包在 <b> 裡"], ans: "B", exp: "正確撰寫 alt 屬性文字可保障視障人士與載入失敗時的閱讀體驗。" },
+            { id: 140, cat: "多媒體與圖片", q: "<audio> 標籤若要顯示播放面板控制項 (播放/暫停/音量)，應加上什麼屬性?", options: ["display", "show", "controls", "play"], ans: "C", exp: "controls 屬性用於渲染瀏覽器預設的多媒體播放控制面板。" },
+            { id: 141, cat: "表格與表單", q: "表格中的一般資料儲存格標籤是?", options: ["<td>", "<data>", "<tr>", "<th>"], ans: "A", exp: "<td>（Table Data）代表表格中的一般數據儲存格。" },
+            { id: 142, cat: "表格與表單", q: "表頭標籤 <th> 常用在哪?", options: ["最後一列", "表格標題列或標題欄", "表格外框", "合併欄位"], ans: "B", exp: "<th>（Table Header）用於欄位或行標題，預設文字加粗且居中。" },
+            { id: 143, cat: "表格與表單", q: "想要合併表格中的「兩列/兩列」(跨垂直列 Rows)，要設定哪一個屬性?", options: ["colspan=\"2\"", "rowspan=\"2\"", "merge=\"2\"", "cross=\"2\""], ans: "B", exp: "rowspan=\"2\" 代表垂直向下跨越 2 列 (Rows)。" },
+            { id: 144, cat: "表格與表單", q: "宣告表格中的「一列」(row) 的標籤是?", options: ["<td>", "<th>", "<tr>", "<table>"], ans: "C", exp: "<tr>（Table Row）用於宣告表格中的一行/列。" },
+            { id: 145, cat: "表格與表單", q: "若要為表格 (<table>) 加上整體大標題，應使用哪個標籤?", options: ["<title>", "<th>", "<header>", "<caption>"], ans: "D", exp: "<caption> 標籤緊跟在 <table> 後，為表格提供標題說明。" },
+            { id: 146, cat: "無障礙與可及性 (WCAG)", q: "在 <th> 中使用 scope=\"col\" 的目的是?", options: ["清楚告知螢幕閱讀器該標題是對應哪一「欄 (Column)」，提升無障礙體驗", "用於合併欄位", "設定欄位寬度", "設定背景顏色"], ans: "A", exp: "scope=\"col\" 明確指定該表頭屬性作用於一整直欄 (Column)。" },
+            { id: 147, cat: "表格與表單", q: "表格標籤屬性 border=\"1\" 的作用主要是?", options: ["改變表格寬度", "為表格顯示基礎的邊框", "設定背景色", "取代 CSS 樣式"], ans: "B", exp: "border 屬性提供簡易的網格邊框呈現。" },
+            { id: 148, cat: "表格與表單", q: "下拉選單 <select> 中使用的子選項標籤為?", options: ["<item>", "<choice>", "<option>", "<li>"], ans: "C", exp: "<select> 選單內包含多個 <option> 項目。" },
+            { id: 149, cat: "表格與表單", q: "把表單提交後的資料傳送到指定的伺服器 URL，該屬性為何?", options: ["method", "transfer", "href", "action"], ans: "D", exp: "action 屬性指定表單 Submit 後接收資料的伺服器 Endpoint。" },
+            { id: 150, cat: "表格與表單", q: "HTML 中的 <form> 標籤主要用途是?", options: ["收集使用者輸入的資料並傳送至伺服器", "繪製表格", "設定網頁結構", "顯示影片"], ans: "A", exp: "<form> 為表單容器，用於包含輸入欄位並發送資料。" },
+            { id: 151, cat: "表格與表單", q: "<datalist> 標籤的主要用途是?", options: ["建立下拉選單但不許自訂", "為 <input> 欄位提供自動補全建議清單,使用者仍可自行輸入", "顯示資料庫內容", "建立表格數據"], ans: "B", exp: "<datalist> 搭配 input 的 list 屬性，提供自動建議清單兼具自由輸入功能。" },
+            { id: 152, cat: "無障礙與可及性 (WCAG)", q: "提升可及性時，表單欄位應優先搭配哪個標籤?", options: ["<legend>", "<caption>", "<label>", "<code>"], ans: "C", exp: "<label> 為輸入欄位提供文字語意說明與放大點擊區域。" },
+            { id: 153, cat: "表格與表單", q: "表單中夾帶「不顯示給使用者，但送出時要傳送」的欄位類型是?", options: ["type=\"text\"", "type=\"readonly\"", "type=\"placeholder\"", "type=\"hidden\""], ans: "D", exp: "type=\"hidden\" 為隱藏欄位，用於傳遞 Token 或 ID 等不需視覺呈現的資料
